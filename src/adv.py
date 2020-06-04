@@ -1,6 +1,7 @@
 from room import Room
 # from code import InteractiveConsole
 from player import Player
+from item import Item
 import sys
 
 # Declare all the rooms
@@ -29,13 +30,40 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
-#
-# Main
-#
+# functoin for changing location
+
+def try_direction(player, command):
+    # attribute will be formatted to change rooms per above linked rooms
+    attribute = command + '_to'
+# if statement to either change rooms or be informed of players invalid entry
+    if hasattr(player.location, attribute):
+        player.location = getattr(player.location, attribute)
+    else:
+        print("\n You cannot go that way!")
+
+# add gold to the treasure room
+
+room['treasure'].items = 'gold'
+room['outside'].items = 'wand'
+
+welcome = input("\nWould you like to play the game? (yes/no)").lower().strip()
+
+if welcome == 'yes':
+    print("""
+    Welcome to our RPG game!
+    Your task is to find the hidden treasure.
+    You can move in the four cardinal directions, North, East, South, and West.  To move in a direction, input the first leter of the direction you want to go. 'n' for north, 'e' for east etc.  If you would like to quit, at any time make your move 'q'
+    Good luck!""" )
+    name = str(input("\n What is your player name?"))
+elif welcome == 'no':
+    sys.exit("You've opened the wrong file.  Better luck next time.")
+else:
+    print("You've entered an invalid command please input 'yes' or 'no'.")
+    welcome = input("Would you like to play the game? (yes/no)").lower().strip()
 
 # Make a new player object that is currently in the 'outside' room.
 
-# print(player)
+player = Player(room['outside'])
 
 # Write a loop that:
 #
@@ -51,46 +79,31 @@ room['treasure'].s_to = room['narrow']
 
 # create the REPL for the game
 
-welcome = input("Would you like to play the game? (yes/no)").lower().strip()
 
-if welcome == 'yes':
-    print("""Welcome to our RPG game!
-    Your task is to find the hidden treasure.
-    You can move in the four cardinal directions, North, East, South, and West.  To move in a direction, input the first leter of the direction you want to go. 'n' for north, 'e' for east etc.  If you would like to quit, at any time make your move 'q'
-    Good luck!""" )
-    name = str(input("What is your player name?"))
-elif welcome == 'no':
-    sys.exit("You've opened the wrong file.  Better luck next time.")
-else:
-    print("You've entered an invalid command please input 'yes' or 'no'.")
-    welcome = input("Would you like to play the game? (yes/no)").lower().strip()
-
-player = Player(name, room['outside'])
-
-print(player)
-
-live_game = True
-
-move = input("What's your move?").strip().lower()
-
-while live_game == True:
-    if move == 'n':
-        print('move north')
-        move = input("What's your move?").strip().lower()
-    elif move == 'e':
-        print('move east')
-        move = input("What's your move?").strip().lower()
-    elif move == 's':
-        print('move south')
-        move = input("What's your move?").strip().lower()
-    elif move == 'w':
-        print('move west')
-        move = input("What's your move?").strip().lower()
-    elif move == 'q':
+while True:
+    print('\n', player.location)
+    move = input(f"\n {name}, what's your move?").strip().lower()
+    letter = move[0]
+    if letter == 'n':
+        try_direction(player, letter)
+    elif letter == 'e':
+        try_direction(player, letter)
+    elif letter == 's':
+        try_direction(player, letter)
+    elif letter == 'w':
+        try_direction(player, letter)
+    elif letter == 'q':
         sys.exit("Thank you for playing. Better luck next time.")
-    elif move not in ['n', 'e', 's', 'w', 'q']:
-        print('That is an invalid move, try again.')
-        move = input("What's your move?").strip().lower()
+    elif letter == 'l':
+        print(f'\n This room has: {player.location.items}.')
+    elif letter == 'a':
+        print(f'\n {name} has acquired {player.location.items}.')
+        player.items = player.location.items
+        player.location.items = []
+    elif letter not in ['n', 'e', 's', 'w', 'q', 'l']:
+        print('\nThat is an invalid move, try again.')
+        print('\n', player.location)    
+        move = input(f"\n {name}, what's your move?").strip().lower()
 
 
 
